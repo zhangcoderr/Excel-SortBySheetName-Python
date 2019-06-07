@@ -3,8 +3,10 @@ import os
 import datetime
 import re
 import xlrd
+from xlutils.copy import copy
+#from openpyxl import load_workbook
+from win32com.client import Dispatch
 
-from openpyxl import load_workbook
 
 class SheetData:
     def __init__(self,sheetFullName,sheetKey,number,ws):
@@ -15,18 +17,24 @@ class SheetData:
 
 def replace_xlsx(sheetname,sheetvalue):
     table = wb.sheet_by_name(sheetname)
-    #ws2 = wb2[sheetname]
-    ws2=wb2.create_sheet(sheetname)
+    #ws2=wb2.create_sheet(sheetname)
 
-    for i in range(table.nrows):
-        for j in range(table.ncols):
-            ws2.cell(row=i + 1, column=j + 1, value=table.cell(i,j).value)
+    # for i in range(table.nrows):
+    #     for j in range(table.ncols):
+    #         ws2.cell(row=i + 1, column=j + 1, value=table.cell(i,j).value)
 
+def move_sheet(move_sheet,before_sheet_index):
+    # excel = Dispatch("Excel.Application")
+    # excel.Visible = True
+    # book = excel.Workbooks.Open(r'C:\Users\123\Desktop\ExcelSort\111.xls', False, True)
+    # sheet = book.Worksheets('Sheet3')
+    # print(sheet.Name)
+    # sheet.Move(Before=book.Worksheets('Sheet1'))
+    # book.Worksheets('Sheet2').Move(Before=book.Worksheets('Sheet3'))
+    move=book.Worksheets(move_sheet)
+    before=book.Worksheets(before_sheet_index)
+    move.Move(Before=before)
 
-    #两个for循环遍历整个excel的单元格内容
-    # for i, row in enumerate(ws.iter_rows()):
-    #     for j, cell in enumerate(row):
-    #         ws2.cell(row=i + 1, column=j + 1, value=cell.value)
 
 def sort_sheet():
     #name_dic={}
@@ -46,7 +54,6 @@ def sort_sheet():
 
 
         sheets.append(sheet)
-    print(len(sheets))
     for i in range(len(sheets)):
         for j in range(len(sheets)):
             if(i==j): continue
@@ -68,110 +75,76 @@ def sort_sheet():
                     temp = sheetData1
                     sheets[i] = sheets[j]
                     sheets[j] = temp
+    #for s in sheets:
+    #     print(s.number)
+    #     print(s.sheetKey)
+    #     print('--------')
     for i in range(len(sheets)):
         for j in range(len(sheets)):
-            if(i==j or sheetData2.sheetKey!=sheetData1.sheetKey): continue
+
+            if(i>=j or sheets[i].sheetKey!=sheets[j].sheetKey):
+                # print(sheetData1.number)
+                # print(sheetData2.number)
+                # print(sheetData1.sheetKey)
+                # print(sheetData2.sheetKey)
+                continue
+            #print('i' + str(i) + 'j' + str(j))
             sheetData1 = sheets[i]
             sheetData2 = sheets[j]
-            if(sheetData1.number>sheetData2.number):
+            if(int(sheetData1.number)>int(sheetData2.number)):
                 temp = sheetData1
                 sheets[i] = sheets[j]
                 sheets[j] = temp
-    for s in sheets:
-        print(s.sheetFullName)
-
-
-            #ws=sheetname#test------------------------------------
-
-        # if name_dic.keys() and names:
-        #     if sheetname in name_dic.keys():
-        #         name_dic[sheetname].append(ws)
-        #     else:
-        #         list=[ws]
-        #         name_dic.update({sheetname:list})
-        # else:
-        #     if names:
-        #         list = [ws]
-        #         name_dic.update({sheetname: list})
-        #     else:
-        #         list = [ws]
-        #         name_dic.update({sheetname: list})
-    # for sheetname1 in name_dic:                 #排序有问题 todotodotodotodoooooooooooooooo
-    #     for sheetname2 in name_dic:
-    #         numbers = re.findall('^(.*?)\.', sheetname)
-    #
-    #         keys=re.findall('表(.*?)[\u4e00-\u9fa5]',sheetname1)
-    #         keyNexts=re.findall('表(.*?)[\u4e00-\u9fa5]',sheetname2)
-    #
-    #         if(not keys or not keyNexts):
-    #             continue
-    #         key=keys[0]
-    #         keyNext=keyNexts[0]
-    #
-    #         index_1=-1
-    #         index_2=-1
-    #         for index,rule in enumerate(sortRule):
-    #             if(rule==key):
-    #                 index_1=index
-    #                 break
-    #         for index,rule in enumerate(sortRule):
-    #             if(rule==keyNext):
-    #                 index_2=index
-    #                 break
-    #
-    #         if(index_1!=-1 and index_2!=-1):
-    #             if(index_2>index_1):
-    #                 temp=name_dic.pop(sheetname1)
-    #                 name_dic[sheetname1]=name_dic.pop(sheetname2)
-    #                 name_dic[sheetname2]=temp
-    #
-    #                 temp=name_dic[sheetname1]
-    #                 name_dic[sheetname1]=name_dic[sheetname2]
-    #                 name_dic[sheetname2]=temp       #排序有问题 todotodotodotodooooooooo
-
-    # for sheetname1 in name_dic:
-    #     for sheetArray in name_dic[sheetname1]:
-    #         if(len(name_dic[sheetname1])==1):
-    #             break
-    #         for sheetArray2 in name_dic[sheetname1]:
-    #             number1=re.findall('^(.*?)\.',sheetname1)[0]
-    #             number2=re.findall('^(.*?)\.',sheetname2)[0]
-    #             if(number2<number1):
-    #                 temp = name_dic.pop(sheetname1)
-    #                 name_dic[sheetname1] = name_dic.pop(sheetname2)
-    #                 name_dic[sheetname2] = temp
-    #
-    #                 temp = name_dic[sheetname1]
-    #                 name_dic[sheetname1] = name_dic[sheetname2]
-    #                 name_dic[sheetname2] = temp
-
+    # for s in sheets:
+    #     print(s.sheetFullName)
 
     return sheets
 if __name__ == "__main__":
     os.chdir(r"C:\Users\123\Desktop\ExcelSort")
+
+    # ----------
+    excel= Dispatch("Excel.Application")
+    excel.Visible = True
+    book= excel.Workbooks.Open(r'C:\Users\123\Desktop\ExcelSort\all.xls',False,True)
+    # sheet=book.Worksheets('Sheet1')
+    # print(sheet.Name)
+    # sheet.Move(Before=book.Worksheets('Sheet1'))
+    # book.Worksheets('Sheet2').Move(Before=book.Worksheets('Sheet3'))
+    #
+    # ----------
+
     sortRule=['1-1', '1-1-1', '1-1-2', '1-2','1-3-A', '1-3-B','1-3-C',  '1-3-A-1', '1-4', '1-4-1', '1-4-2', '1-5', '1-6', '1-7',  '2-1','2-2', '2-3', '2-4','2-5', '2-7',]
 
-    filename = 'all.xlsx'
-    filename2 = 'testResult.xlsx'
+    filename = 'all.xls'
     print('loading')
 
     wb=xlrd.open_workbook(filename)
     print('load done')
-    wb2 = load_workbook(filename2)
+    output=copy(wb)
 
 
     sheetnames = wb.sheet_names()
     result= sort_sheet()
-    print(result)
 
-    # for sheetname in dic_result:
+    #move_sheet(result[2].sheetFullName,1)
+    index=1
+    for i in range(len(result)):
+        smallest=result[i]
+        if(i==len(result)):
+            break
+        else:
+            move_sheet(smallest.sheetFullName,index)
+            index=index+1
+    print('done!!!')
+
+
+    # for sheetname in result:
     #     print(sheetname)
-    #     print(dic_result[sheetname])
-    #     replace_xlsx(sheetname,dic_result[sheetname])
+    #     replace_xlsx(sheetname,result[sheetname])
     # for sheetname in sheetnames:
     #     replace_xlsx(sheetname)
-
-
+    #
+    #
     # d= datetime.datetime.now().strftime('%d-%M-%S')
-    # filename2='testResult'+d+'.xlsx'
-    # wb2.save(filename2)
+    # filename2='testResult'+d+'.xls'
+    # output.save(filename2)
